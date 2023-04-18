@@ -1,0 +1,113 @@
+<dependency>
+  <groupId>com.alibaba</groupId>
+  <artifactId>fastjson</artifactId>
+  <version>1.2.78</version>
+</dependency>import com.alibaba.fastjson.JSONObject;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+        // 创建一个List<MyBean>对象
+        List<MyBean> myBeans = new ArrayList<>();
+        // 填充数据
+        myBeans.add(new MyBean("张三", 25));
+        myBeans.add(new MyBean("李四", 30));
+
+        // 转换为List<JSONObject>
+        List<JSONObject> jsonObjects = convertToJSONObjects(myBeans);
+
+        // 输出结果
+        System.out.println(jsonObjects);
+    }
+
+    private static List<JSONObject> convertToJSONObjects(List<MyBean> myBeans) {
+        List<JSONObject> jsonObjects = new ArrayList<>();
+        for (MyBean myBean : myBeans) {
+            JSONObject jsonObject = (JSONObject) JSONObject.toJSON(myBean);
+            jsonObjects.add(jsonObject);
+        }
+        return jsonObjects;
+    }
+}
+
+class MyBean {
+    private String name;
+    private int age;
+
+    public MyBean(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+}import com.alibaba.fastjson.JSONObject;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+        // 创建一个List<MyBean>对象
+        List<MyBean> myBeans = new ArrayList<>();
+        // 填充数据
+        myBeans.add(new MyBean("张三", 25));
+        myBeans.add(new MyBean("李四", 30));
+
+        // 转换为List<JSONObject>
+        List<JSONObject> jsonObjects = JsonUtil.convertToJSONObjects(myBeans);
+
+        // 输出结果
+        System.out.println(jsonObjects);
+    }
+}
+
+class MyBean {
+    private String name;
+    private int age;
+
+    public MyBean(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+}
+
+class JsonUtil {
+    public static <T> List<JSONObject> convertToJSONObjects(List<T> objects) {
+        List<JSONObject> jsonObjects = new ArrayList<>();
+        for (T obj : objects) {
+            JSONObject jsonObject = (JSONObject) JSONObject.toJSON(obj);
+            jsonObjects.add(jsonObject);
+        }
+        return jsonObjects;
+    }
+}
