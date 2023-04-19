@@ -1,0 +1,72 @@
+public class MyBean {
+    private Date my_date;
+    private Double my_value;
+    private String my_type; // 添加这个字段
+
+    // 生成对应的get和set方法
+}
+public interface MyBeanMapper extends BaseMapper<MyBean> {
+    List<MyBean> getStatsByYear();
+    List<MyBean> getStatsByMonth();
+    List<MyBean> getStatsByDay();
+    <mapper namespace="com.example.mapper.MyBeanMapper">
+    <!-- 按年统计 -->
+    <select id="getStatsByYear" resultType="com.example.entity.MyBean">
+        SELECT
+            DATE_FORMAT(my_date, '%Y') AS my_date,
+            SUM(my_value) AS my_value,
+            'YEAR' AS my_type
+        FROM
+            my_table
+        WHERE
+            my_date BETWEEN '2023-01-01' AND '2023-04-10'
+        GROUP BY
+            DATE_FORMAT(my_date, '%Y')
+    </select>
+
+    <!-- 按月统计 -->
+    <select id="getStatsByMonth" resultType="com.example.entity.MyBean">
+        SELECT
+            DATE_FORMAT(my_date, '%Y-%m') AS my_date,
+            SUM(my_value) AS my_value,
+            'MONTH' AS my_type
+        FROM
+            my_table
+        WHERE
+            my_date BETWEEN '2023-01-01' AND '2023-04-10'
+        GROUP BY
+            DATE_FORMAT(my_date, '%Y-%m')
+    </select>
+
+    <!-- 按日统计 -->
+    <select id="getStatsByDay" resultType="com.example.entity.MyBean">
+        SELECT
+            DATE_FORMAT(my_date, '%Y-%m-%d') AS my_date,
+            SUM(my_value) AS my_value,
+            'DAY' AS my_type
+        FROM
+            my_table
+        WHERE
+            my_date BETWEEN '2023-01-01' AND '2023-04-10'
+        GROUP BY
+            DATE_FORMAT(my_date, '%Y-%m-%d')
+    </select>
+</mapper>
+@Service
+public class MyBeanService {
+    @Autowired
+    private MyBeanMapper myBeanMapper;
+
+    public List<MyBean> getStats(String type) {
+        switch (type.toUpperCase()) {
+            case "YEAR":
+                return myBeanMapper.getStatsByYear();
+            case "MONTH":
+                return myBeanMapper.getStatsByMonth();
+            case "DAY":
+                return myBeanMapper.getStatsByDay();
+            default:
+                throw new IllegalArgumentException("Invalid type: " + type);
+        }
+    }
+}
