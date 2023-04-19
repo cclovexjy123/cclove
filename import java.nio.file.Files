@@ -1,0 +1,223 @@
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.io.IOException;
+
+public class FileChecker {
+
+    public static void main(String[] args) {
+        String filePath = "/home/mine/fig123.jpg";
+        
+        // 您可以根据需要调整检查间隔和检查次数
+        int checkInterval = 1000; // 以毫秒为单位
+        int maxAttempts = 60; // 最大尝试次数
+
+        try {
+            checkFileExistence(filePath, checkInterval, maxAttempts);
+        } catch (InterruptedException e) {
+            System.err.println("线程被中断");
+        } catch (IOException e) {
+            System.err.println("无法访问文件路径: " + e.getMessage());
+        }
+    }
+
+    public static void checkFileExistence(String filePath, int checkInterval, int maxAttempts)
+            throws InterruptedException, IOException {
+        Path path = Paths.get(filePath);
+        int attempts = 0;
+
+        while (attempts < maxAttempts) {
+            if (Files.exists(path)) {
+                System.out.println("文件已存在: " + filePath);
+                break;
+            } else {
+                System.out.println("文件不存在，等待 " + checkInterval + " 毫秒后重新检查");
+                Thread.sleep(checkInterval);
+                attempts++;
+            }
+        }
+
+        if (attempts >= maxAttempts) {
+            System.err.println("已达到最大尝试次数，文件仍未找到: " + filePath);
+        }
+    }
+}
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.io.IOException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
+public class FileChecker {
+
+    public static void main(String[] args) {
+        String filePath = "/home/mine/fig123.jpg";
+
+        // 您可以根据需要调整检查间隔和检查次数
+        int checkInterval = 1000; // 以毫秒为单位
+        int maxAttempts = 60; // 最大尝试次数
+
+        try {
+            checkFileExistence(filePath, checkInterval, maxAttempts);
+        } catch (IOException e) {
+            System.err.println("无法访问文件路径: " + e.getMessage());
+        }
+    }
+
+    public static void checkFileExistence(String filePath, int checkInterval, int maxAttempts) throws IOException {
+        Path path = Paths.get(filePath);
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+        FileExistenceChecker checker = new FileExistenceChecker(path, maxAttempts);
+
+        // 使用 ScheduledExecutorService 定时执行文件检查任务
+        ScheduledFuture<?> future = executor.scheduleAtFixedRate(checker, 0, checkInterval, TimeUnit.MILLISECONDS);
+
+        // 添加一个钩子，以便在应用程序退出时关闭 executor
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            executor.shutdown();
+            try {
+                if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+                    executor.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                executor.shutdownNow();
+            }
+        }));
+    }
+
+    static class FileExistenceChecker implements Runnable {
+        private final Path path;
+        private final int maxAttempts;
+        private int attempts;
+
+        public FileExistenceChecker(Path path, int maxAttempts) {
+            this.path = path;
+            this.maxAttempts = maxAttempts;
+            this.attempts = 0;
+        }
+
+        @Override
+        public void run() {
+            if (Files.exists(path)) {
+                System.out.println("文件已存在: " + path);
+                System.exit(0);
+            } else {
+                attempts++;
+                if (attempts >= maxAttempts) {
+                    System.err.println("已达到最大尝试次数，文件仍未找到: " + path);
+                    System.exit(1);
+                }
+            }
+        }
+    }
+}
+@Override
+public void run() {
+    if (Files.exists(path)) {
+        System.out.println("文件已存在: " + path);
+        // 在这里执行您在文件存在时需要执行的操作
+        // someAction();
+
+        // 取消定时任务
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+        executor.shutdown();
+    } else {
+        attempts++;
+        if (attempts >= maxAttempts) {
+            System.err.println("已达到最大尝试次数，文件仍未找到: " + path);
+            // 在这里执行您在达到最大尝试次数后需要执行的操作
+            // someOtherAction();
+
+            // 取消定时任务
+            ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+            executor.shutdown();
+        }
+    }
+}
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.io.IOException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
+public class FileChecker {
+
+    public static void main(String[] args) {
+        String filePath = "/home/mine/fig123.jpg";
+
+        // 您可以根据需要调整检查间隔和检查次数
+        int checkInterval = 1000; // 以毫秒为单位
+        int maxAttempts = 60; // 最大尝试次数
+
+        try {
+            checkFileExistence(filePath, checkInterval, maxAttempts);
+        } catch (IOException e) {
+            System.err.println("无法访问文件路径: " + e.getMessage());
+        }
+    }
+
+    public static void checkFileExistence(String filePath, int checkInterval, int maxAttempts) throws IOException {
+        Path path = Paths.get(filePath);
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+        FileExistenceChecker checker = new FileExistenceChecker(path, maxAttempts);
+
+        // 使用 ScheduledExecutorService 定时执行文件检查任务
+        ScheduledFuture<?> future = executor.scheduleAtFixedRate(checker, 0, checkInterval, TimeUnit.MILLISECONDS);
+
+        // 将 future 传递给任务，以便在达到最大尝试次数时取消任务
+        checker.setFuture(future);
+
+        // 添加一个钩子，以便在应用程序退出时关闭 executor
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            executor.shutdown();
+            try {
+                if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+                    executor.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                executor.shutdownNow();
+            }
+        }));
+    }
+
+    static class FileExistenceChecker implements Runnable {
+        private final Path path;
+        private final int maxAttempts;
+        private int attempts;
+        private ScheduledFuture<?> future;
+
+        public FileExistenceChecker(Path path, int maxAttempts) {
+            this.path = path;
+            this.maxAttempts = maxAttempts;
+            this.attempts = 0;
+        }
+
+        public void setFuture(ScheduledFuture<?> future) {
+            this.future = future;
+        }
+
+        @Override
+        public void run() {
+            if (Files.exists(path)) {
+                System.out.println("文件已存在: " + path);
+
+                // 取消定时任务
+                future.cancel(false);
+            } else {
+                attempts++;
+                if (attempts >= maxAttempts) {
+                    System.err.println("已达到最大尝试次数，文件仍未找到: " + path);
+
+                    // 取消定时任务
+                    future.cancel(false);
+                }
+            }
+        }
+    }
+}
