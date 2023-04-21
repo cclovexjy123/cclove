@@ -1,0 +1,44 @@
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
+@Service
+public class MyBeanService {
+    @Autowired
+    private MyBeanMapper myBeanMapper;
+
+    public List<MyBean> getStatsByJava(String type, String startDate, String endDate) throws ParseException {
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat yearFormatter = new SimpleDateFormat("yyyy");
+        SimpleDateFormat monthFormatter = new SimpleDateFormat("yyyy-MM");
+        Date start;
+        Date end;
+
+        switch (type.toUpperCase()) {
+            case "YEAR":
+                start = yearFormatter.parse(startDate + "-01-01");
+                end = yearFormatter.parse(endDate + "-12-31");
+                break;
+            case "MONTH":
+                start = monthFormatter.parse(startDate + "-01");
+                end = monthFormatter.parse(endDate + "-01");
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(end);
+                calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
+                end = calendar.getTime();
+                break;
+            case "DAY":
+                throw new IllegalArgumentException("For type 'DAY', please provide 'yyyy-MM-dd' format for startDate and endDate.");
+            default:
+                throw new IllegalArgumentException("Invalid type: " + type);
+        }
+
+        String startLocalDateString = dateFormatter.format(start);
+        String endLocalDateString = dateFormatter.format(end);
+
+        // 使用字符串形式的日期进行数据库查询和其他操作...
+
+        // 其他方法...
+    }
+
+    // ...
+}
