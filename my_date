@@ -1,0 +1,44 @@
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
+
+@Service
+public class MyBeanService {
+    @Autowired
+    private MyBeanMapper myBeanMapper;
+
+    // 其他方法...
+
+    private List<MyBean> aggregateByYear(List<MyBean> data) {
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        return data.stream()
+                .collect(Collectors.groupingBy(
+                        d -> LocalDate.parse(d.getMy_date(), dateFormatter).getYear(),
+                        Collectors.summingDouble(MyBean::getMy_value)))
+                .entrySet().stream()
+                .map(entry -> {
+                    MyBean bean = new MyBean();
+                    bean.setMy_date(Integer.toString(entry.getKey()) + "-01-01");
+                    bean.setMy_value(entry.getValue());
+                    return bean;
+                })
+                .collect(Collectors.toList());
+    }
+
+    private List<MyBean> aggregateByMonth(List<MyBean> data) {
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        return data.stream()
+                .collect(Collectors.groupingBy(
+                        d -> LocalDate.parse(d.getMy_date(), dateFormatter).withDayOfMonth(1).toString(),
+                        Collectors.summingDouble(MyBean::getMy_value)))
+                .entrySet().stream()
+                .map(entry -> {
+                    MyBean bean = new MyBean();
+                    bean.setMy_date(entry.getKey());
+                    bean.setMy_value(entry.getValue());
+                    return bean;
+                })
+                .collect(Collectors.toList());
+    }
+}
