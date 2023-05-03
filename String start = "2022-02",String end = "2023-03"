@@ -1,0 +1,152 @@
+public static String getMonthCount(String start, String end) {
+    try {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
+        Date startDate = sdf.parse(start);
+        Date endDate = sdf.parse(end);
+
+        Calendar startCalendar = Calendar.getInstance();
+        startCalendar.setTime(startDate);
+        Calendar endCalendar = Calendar.getInstance();
+        endCalendar.setTime(endDate);
+
+        int yearDiff = endCalendar.get(Calendar.YEAR) - startCalendar.get(Calendar.YEAR);
+        int monthDiff = endCalendar.get(Calendar.MONTH) - startCalendar.get(Calendar.MONTH);
+
+        int totalMonth = yearDiff * 12 + monthDiff + 1;
+
+        return String.valueOf(totalMonth);
+    } catch (ParseException e) {
+        e.printStackTrace();
+        return null;
+    }
+}
+public static int getYearCount(String start, String end) {
+    try {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date startDate = sdf.parse(start);
+        Date endDate = sdf.parse(end);
+
+        Calendar startCalendar = Calendar.getInstance();
+        startCalendar.setTime(startDate);
+        Calendar endCalendar = Calendar.getInstance();
+        endCalendar.setTime(endDate);
+
+        int yearDiff = endCalendar.get(Calendar.YEAR) - startCalendar.get(Calendar.YEAR);
+        int monthDiff = endCalendar.get(Calendar.MONTH) - startCalendar.get(Calendar.MONTH);
+        int dayDiff = endCalendar.get(Calendar.DAY_OF_MONTH) - startCalendar.get(Calendar.DAY_OF_MONTH);
+
+        if (monthDiff < 0 || (monthDiff == 0 && dayDiff < 0)) {
+            yearDiff--;
+        }
+
+        return yearDiff;
+    } catch (ParseException e) {
+        e.printStackTrace();
+        return -1;
+    }
+}
+public static int getYearCount(String start, String end) {
+    try {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date startDate = sdf.parse(start);
+        Date endDate = sdf.parse(end);
+
+        Calendar startCalendar = Calendar.getInstance();
+        startCalendar.setTime(startDate);
+        Calendar endCalendar = Calendar.getInstance();
+        endCalendar.setTime(endDate);
+
+        int yearDiff = endCalendar.get(Calendar.YEAR) - startCalendar.get(Calendar.YEAR);
+
+        return yearDiff;
+    } catch (ParseException e) {
+        e.printStackTrace();
+        return -1;
+    }
+}
+public static int getYearCount(String start, String end) {
+    try {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date startDate = sdf.parse(start);
+        Date endDate = sdf.parse(end);
+
+        Calendar startCalendar = Calendar.getInstance();
+        startCalendar.setTime(startDate);
+        Calendar endCalendar = Calendar.getInstance();
+        endCalendar.setTime(endDate);
+
+        int yearDiff = endCalendar.get(Calendar.YEAR) - startCalendar.get(Calendar.YEAR);
+
+        int monthDiff = endCalendar.get(Calendar.MONTH) - startCalendar.get(Calendar.MONTH);
+        int dayDiff = endCalendar.get(Calendar.DAY_OF_MONTH) - startCalendar.get(Calendar.DAY_OF_MONTH);
+
+        if (monthDiff < 0 || (monthDiff == 0 && dayDiff < 0)) {
+            yearDiff--;
+        }
+
+        return yearDiff + 1;
+    } catch (ParseException e) {
+        e.printStackTrace();
+        return -1;
+    }
+}
+public static String[] getMonthList(String start, String end) {
+    try {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
+        Date startDate = sdf.parse(start);
+        Date endDate = sdf.parse(end);
+
+        Calendar startCalendar = Calendar.getInstance();
+        startCalendar.setTime(startDate);
+        Calendar endCalendar = Calendar.getInstance();
+        endCalendar.setTime(endDate);
+
+        int yearDiff = endCalendar.get(Calendar.YEAR) - startCalendar.get(Calendar.YEAR);
+        int monthDiff = endCalendar.get(Calendar.MONTH) - startCalendar.get(Calendar.MONTH);
+
+        int totalMonth = yearDiff * 12 + monthDiff + 1;
+
+        String[] monthList = new String[totalMonth];
+        for (int i = 0; i < totalMonth; i++) {
+            String monthString = sdf.format(startCalendar.getTime());
+            monthList[i] = monthString.replace("-", "");
+            startCalendar.add(Calendar.MONTH, 1);
+        }
+
+        return monthList;
+    } catch (ParseException e) {
+        e.printStackTrace();
+        return null;
+    }
+}
+public static String[] getMonthList(String start, String end) {
+    try {
+        SimpleDateFormat sdfInput = new SimpleDateFormat("yyyyMMdd");
+        SimpleDateFormat sdfOutput = new SimpleDateFormat("yyyyMM");
+
+        Date startDate = sdfInput.parse(start);
+        Date endDate = sdfInput.parse(end);
+
+        Calendar startCalendar = Calendar.getInstance();
+        startCalendar.setTime(startDate);
+        Calendar endCalendar = Calendar.getInstance();
+        endCalendar.setTime(endDate);
+
+        int yearDiff = endCalendar.get(Calendar.YEAR) - startCalendar.get(Calendar.YEAR);
+        int monthDiff = endCalendar.get(Calendar.MONTH) - startCalendar.get(Calendar.MONTH);
+
+        int totalMonth = yearDiff * 12 + monthDiff + 1;
+
+        String[] monthList = new String[totalMonth];
+        for (int i = 0; i < totalMonth; i++) {
+            String monthString = sdfOutput.format(startCalendar.getTime());
+            monthList[i] = monthString;
+            startCalendar.add(Calendar.MONTH, 1);
+        }
+
+        return monthList;
+    } catch (ParseException e) {
+        e.printStackTrace();
+        return null;
+    }
+}
