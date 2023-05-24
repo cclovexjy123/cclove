@@ -1,0 +1,52 @@
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+
+import java.time.Duration;
+import java.util.Collections;
+import java.util.Properties;
+
+public class ConsumerRunnable implements Runnable {
+    private final KafkaConsumer<String, String> consumer;
+
+    public ConsumerRunnable(String brokers, String groupId, String topic) {
+        Properties props = new Properties();
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, brokers);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
+        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");
+        this.consumer = new KafkaConsumer<>(props);
+        consumer.subscribe(Collections.singletonList(topic));
+    }
+
+    @Override
+    public void run() {
+        try {
+            while (true) {
+                ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
+                for (ConsumerRecord<String, String> record : records) {
+                    // Process each record here
+                    System.out.println("Received message: " + record.value() + ", Partition: " + record.partition() + ", Offset: " + record.offset());
+                }
+                consumer.commitSync();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            consumer.close();
+        }
+    }
+}
+public static void main(String[] args) {
+    String brokers = "localhost:9092";
+    String groupId = "your-group-id";
+    String topic = "your-topic";
+    int numConsumers = 3; // Create 3 consumers
+
+    for (int i = 0; i < numConsumers; i++) {
+        ConsumerRunnable consumerRunnable = new ConsumerRunnable(brokers, groupId, topic);
+        new Thread(consumerRunnable).start();
+    }
+}
