@@ -1,0 +1,47 @@
+import pandas as pd
+import yfinance as yf
+
+# 获取所有上证的股票
+# 这里假设有一个函数 get_all_stocks() 可以返回所有上证的股票代码列表
+all_stocks = get_all_stocks()
+
+# 定义筛选条件
+def filter_conditions(stock):
+    data = yf.download(stock, period="1d")  # 下载股票数据
+    if data.empty:
+        return False
+
+    # 计算5日和10日均线
+    data['MA5'] = data['Close'].rolling(window=5).mean()
+    data['MA10'] = data['Close'].rolling(window=10).mean()
+
+    # 条件1：股票的股价站上5日、10日均线，且均线方向向上或底部拐点
+    if data['Close'][-1] < data['MA5'][-1] or data['Close'][-1] < data['MA10'][-1]:
+        return False
+    if data['MA5'][-1] < data['MA5'][-2] or data['MA10'][-1] < data['MA10'][-2]:
+        return False
+
+    # 这里仅做了简单的均线方向判断，实际上还需要考虑底部拐点的情况，需要更复杂的逻辑
+
+    # 条件2、3、4的判断需要更多的数据和复杂的逻辑，这里省略
+
+    return True
+
+# 循环遍历所有股票，筛选出符合条件的
+filtered_stocks = []
+for stock in all_stocks:
+    if filter_conditions(stock):
+        filtered_stocks.append(stock)
+
+# 输出筛选结果
+print(filtered_stocks)
+from cstock.request import Requester
+from cstock.hexun_engine import HexunEngine
+
+# 创建一个引擎和请求器
+engine = HexunEngine()
+requester = Requester(engine)
+
+# 获取股票数据
+stock_obj = requester.request('000626')
+print(stock_obj[0].as_dict())
