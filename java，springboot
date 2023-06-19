@@ -1,0 +1,50 @@
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Map;
+
+// ...
+
+Logger logger = LoggerFactory.getLogger(YourClassName.class);
+
+for (Map.Entry<String, Map<String, Object>> outerEntry : yourMap.entrySet()) {
+    String outerKey = outerEntry.getKey();
+    Map<String, Object> innerMap = outerEntry.getValue();
+
+    logger.info("Outer key: {}", outerKey);
+
+    for (Map.Entry<String, Object> innerEntry : innerMap.entrySet()) {
+        String innerKey = innerEntry.getKey();
+        Object value = innerEntry.getValue();
+
+        try {
+            logger.info("    Inner key: {}, value: {}", innerKey, value);
+        } catch (Exception ex) {
+            // 如果value无法被转为字符串，这里会抛出异常。在这种情况下，我们可以至少输出键的名字。
+            logger.error("    Error while logging value for inner key: {}", innerKey, ex);
+        }
+    }
+}
+// 获取方法签名
+MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
+// 获取参数名称
+String[] parameterNames = methodSignature.getParameterNames();
+// 获取参数值
+Object[] parameterValues = joinPoint.getArgs();
+
+// 将参数名称和参数值组合成一个 Map
+Map<String, Object> paramMap = new HashMap<>(parameterNames.length + 1);
+paramMap.put("executionTime", executionTime);
+for (int i = 0; i < parameterNames.length; i++) {
+    Object value = parameterValues[i];
+
+    if (value instanceof HttpServletResponse) {
+        // 如果参数是 HttpServletResponse，将其转换为我们可以序列化的形式。
+        // 在这个例子中，我们只是存储一个简单的字符串，你可能需要存储更多的信息。
+        value = "HttpServletResponse";
+    }
+    // 添加其他类型的处理代码...
+
+    paramMap.put(parameterNames[i], value);
+}
+slowInterface.put(name, paramMap);
