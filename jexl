@@ -1,0 +1,43 @@
+private final DecimalFormat df = new DecimalFormat("0.00");
+public Object evaluate(String jexlExp, Map<String, Object> map) {
+        try {
+            JexlExpression je = jexlEngine.createExpression(jexlExp);
+
+            for (String classKey : fixedClass.keySet()) {
+                if (StringUtils.contains(jexlExp, classKey + ".")) {
+                    map.put(classKey, fixedClass.get(classKey));
+                }
+            }
+
+            JexlContext jc = new MapContext();
+            if (map != null && !map.isEmpty()) {
+                for (String key : map.keySet()) {
+                    jc.set(key, map.get(key) == null ? StringUtils.EMPTY : map.get(key));
+                }
+            }
+
+            Object oc = je.evaluate(jc);
+            if (null == oc) {
+                return StringUtils.EMPTY;
+            }
+
+            // Add this block to format the result
+            if(oc instanceof Number) {
+                return df.format(oc);
+            }
+            return oc;
+        } catch (Exception e) {
+            log.error("{}: {}", e.getMessage(), jexlExp);
+            return e.getMessage();
+        }
+    }
+// Add this block to format the result
+if(oc instanceof Number) {
+    if (oc instanceof Integer || oc instanceof Long) {
+        return oc;
+    } else if (oc instanceof Float || oc instanceof Double) {
+        double val = Double.parseDouble(df.format(oc));
+        return val;
+    }
+}
+return oc;
