@@ -1,0 +1,83 @@
+SELECT
+            ttt.*
+        FROM
+        (
+            SELECT
+                ROW_NUMBER() OVER ( PARTITION BY tt.LEVEL, tt.srv_id, tt.event_name ORDER BY tt.TIMESTAMP DESC ) AS rn,
+                    COUNT( 1 ) OVER ( PARTITION BY tt.LEVEL, tt.srv_id, tt.event_name ) AS rn_num,
+                    MAX( tt.TIMESTAMP ) OVER ( PARTITION BY tt.LEVEL, tt.srv_id, tt.event_name ) AS max_timestamp,
+                    MIN( tt.TIMESTAMP ) OVER ( PARTITION BY tt.LEVEL, tt.srv_id, tt.event_name ) AS min_timestamp,
+                    tt.*
+            FROM
+                (
+                    SELECT CAST(t.event_id AS CHAR) as event_rid, t.event_id, t.system_id, t.system_id_full, t.srv_id, t.path, date_format(t.date,'%Y-%m-%d') as `date`, t.time, t.hostname, t.node_name, t.node_id, t.thread_id, t.event_name, t.timestamp, t.insert_timestamp, t.level, t.event_msg, t.event_status, t.event_desc, t.srv_id AS event_base
+                    FROM
+                        t_common_event t
+                            LEFT JOIN t_role_system r ON r.system_id = t.system_id
+                            OR r.system_id = '*'
+                    WHERE
+                        1 = 1
+                    <if test="eventSearchVO.arrayLevel!=null and eventSearchVO.arrayLevel.size() &lt; 6">
+                        AND t.level in
+                        <foreach  item="item" index="index" collection="eventSearchVO.arrayLevel" open="(" separator="," close=" )">
+                            #{item}
+                        </foreach>
+                    </if>
+                    <if test="eventSearchVO.eventStatus!=null">
+                        AND t.event_status = #{eventSearchVO.eventStatus}
+                    </if>
+                        AND t.timestamp BETWEEN #{eventSearchVO.start} AND #{eventSearchVO.end}
+                    <if test="eventSearchVO.roleId!=null">
+                        AND r.role_id = #{eventSearchVO.roleId}
+                    </if>
+                      UNION ALL
+                    SELECT CAST(t.event_id AS CHAR) as event_rid, t.event_id, t.system_id, t.system_id_full, t.srv_id, t.path, date_format(t.date,'%Y-%m-%d') as `date`, t.time, t.hostname, t.node_name, t.node_id, t.thread_id, t.event_name, t.timestamp, t.insert_timestamp, t.level, t.event_msg, t.event_status, t.event_desc, t.srv_id AS event_base
+                    FROM
+                        t_anomaly_alert t
+                            LEFT JOIN t_role_system r ON r.system_id = t.system_id
+                            OR t.system_id = '*'
+                    WHERE
+                        1 = 1
+                    <if test="eventSearchVO.arrayLevel!=null and eventSearchVO.arrayLevel.size() &lt; 6">
+                        AND t.level in
+                        <foreach  item="item" index="index" collection="eventSearchVO.arrayLevel" open="(" separator="," close=" )">
+                            #{item}
+                        </foreach>
+                    </if>
+                    <if test="eventSearchVO.eventStatus!=null">
+                        AND t.event_status = #{eventSearchVO.eventStatus}
+                    </if>
+                        AND t.timestamp BETWEEN #{eventSearchVO.start} AND #{eventSearchVO.end}
+                    <if test="eventSearchVO.roleId!=null">
+                        AND r.role_id = #{eventSearchVO.roleId}
+                    </if>
+                ) tt
+        ) ttt
+        WHERE
+            ttt.rn = '1'
+SELECT
+  ttt.*,
+  @group_id := CASE
+    WHEN @last_timestamp IS NULL OR ABS(ttt.timestamp - @last_timestamp) > @threshold THEN @group_id + 1
+    ELSE @group_id
+  END AS group_id,
+  @last_timestamp := ttt.timestamp
+FROM
+(
+    ...你的现有查询...
+) ttt
+JOIN (SELECT @group_id := 0, @last_timestamp := NULL, @threshold := ?) init
+ORDER BY ttt.LEVEL, ttt.srv_id, ttt.event_name, ttt.timestamp
+SELECT
+  ttt.*,
+  @group_id := CASE
+    WHEN @prev_rn IS NULL OR ttt.rn - @prev_rn > 1 THEN @group_id + 1
+    ELSE @group_id
+  END AS group_id,
+  @prev_rn := ttt.rn
+FROM
+(
+    ...你的现有查询...
+) ttt
+JOIN (SELECT @group_id := 0, @prev_rn := NULL) init
+ORDER BY ttt.LEVEL, ttt.srv_id, ttt.event_name, ttt.TIMESTAMP
