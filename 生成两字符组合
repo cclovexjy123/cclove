@@ -1,0 +1,24 @@
+public static void enumerateCombinations(ArrayList<String> list, int startIndex) {
+    if (startIndex >= list.size()) {
+        // 递归终止条件：已经处理完所有元素
+        return;
+    }
+
+    for (int i = startIndex + 1; i < list.size(); i++) {
+        String combined = list.get(startIndex) + list.get(i);
+        System.out.println(combined);
+    }
+
+    enumerateCombinations(list, startIndex + 1);
+}
+
+public static void main(String[] args) {
+    ArrayList<String> list = new ArrayList<>();
+    list.add("a");
+    list.add("b");
+    list.add("c");
+    list.add("d");
+    list.add("e");
+    list.add("f");
+    enumerateCombinations(list, 0);
+}
