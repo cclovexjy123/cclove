@@ -1,0 +1,32 @@
+try (Connection conn = dataSource.getConnection();
+     Statement stmt = conn.createStatement();
+     ResultSet rs = stmt.executeQuery("YOUR_QUERY")) {
+    // 使用rs
+} catch (SQLException e) {
+    // 处理异常
+}
+spring.datasource.hikari.leak-detection-threshold=30000
+Page<User> page = new Page<>(1, 50); // 第1页，每页50条数据
+IPage<User> userPage = userMapper.selectPage(page, null);
+<select id="yourSelectId" resultType="YourResultType" timeout="10">
+   <!-- your SQL -->
+</select>
+@Transactional(timeout = 10)  // 10秒超时
+@Override
+public List<PeriodServerInfo> getListByCondition(Map<String, Object> paramMap) {
+    return getBaseMapper().getListByCondition(paramMap);
+}
+@Transactional  // 使用Spring的声明式事务管理
+public List<Object> wxCommonPeriodIndexInit(UserLineChartVO userLineChartVO,
+                                           String startDate, String endDate, String systemIdFull) {
+    try {
+        List<CommonPeriodIndex> res = commonPeriodIndexLineService.getListByCondition(paramMap);
+        return res;
+    } catch (Exception e) {
+        // Log the exception for debugging purposes
+        log.error("Error while fetching data from database:", e);
+
+        // Re-throw the exception or handle it based on your needs
+        throw e;
+    }
+}
