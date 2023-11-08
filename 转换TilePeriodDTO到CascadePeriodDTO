@@ -1,0 +1,166 @@
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class Converter {
+    public List<CascadePeriodDTO> convert(List<TilePeriodDTO> tilePeriodDTOList) {
+        Map<String, CascadePeriodDTO> idTextMap = new HashMap<>();
+        List<CascadePeriodDTO> result = new ArrayList<>();
+
+        for (TilePeriodDTO tilePeriodDTO : tilePeriodDTOList) {
+            String id = Integer.toString(tilePeriodDTO.getId());
+            String text = tilePeriodDTO.getText();
+
+            CascadePeriodDTO cascadePeriodDTO = idTextMap.get(id + text);
+
+            if (cascadePeriodDTO == null) {
+                // If not found in the map, create a new CascadePeriodDTO
+                cascadePeriodDTO = new CascadePeriodDTO();
+                cascadePeriodDTO.setId(id);
+                cascadePeriodDTO.setText(text);
+                idTextMap.put(id + text, cascadePeriodDTO);
+                result.add(cascadePeriodDTO);
+            }
+
+            // Create a new child CascadePeriodDTO for indexName and showText
+            CascadePeriodDTO child = new CascadePeriodDTO();
+            child.setId(tilePeriodDTO.getIndexName());
+            child.setText(tilePeriodDTO.getShowText());
+
+            if (cascadePeriodDTO.getChildren() == null) {
+                cascadePeriodDTO.setChildren(new ArrayList<>());
+            }
+
+            cascadePeriodDTO.getChildren().add(child);
+        }
+
+        return result;
+    }
+}
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+public class Converter {
+    public List<CascadePeriodDTO> convert(List<TilePeriodDTO> tilePeriodDTOList) {
+        Map<String, CascadePeriodDTO> idTextMap = tilePeriodDTOList.stream()
+            .collect(Collectors.toMap(
+                tile -> tile.getId() + tile.getText(),
+                tile -> {
+                    CascadePeriodDTO cascadePeriodDTO = new CascadePeriodDTO();
+                    cascadePeriodDTO.setId(tile.getId());
+                    cascadePeriodDTO.setText(tile.getText());
+                    return cascadePeriodDTO;
+                },
+                (existing, replacement) -> {
+                    existing.getChildren().add(replacement);
+                    return existing;
+                }
+            ));
+
+        return idTextMap.values().stream().collect(Collectors.toList());
+    }
+}
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+public class Converter {
+    public List<CascadePeriodDTO> convert(List<TilePeriodDTO> tilePeriodDTOList) {
+        Map<String, CascadePeriodDTO> idTextMap = tilePeriodDTOList.stream()
+            .collect(Collectors.toMap(
+                tile -> tile.getId() + tile.getText(),
+                tile -> {
+                    CascadePeriodDTO cascadePeriodDTO = new CascadePeriodDTO();
+                    cascadePeriodDTO.setId(tile.getId());
+                    cascadePeriodDTO.setText(tile.getText());
+                    return cascadePeriodDTO;
+                },
+                (existing, replacement) -> {
+                    existing.getChildren().add(replacement);
+                    return existing;
+                }
+            ));
+
+        return idTextMap.values().stream().collect(Collectors.toList());
+    }
+}
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class Converter {
+    public List<CascadePeriodDTO> convert(List<TilePeriodDTO> tilePeriodDTOList) {
+        return tilePeriodDTOList.stream()
+            .map(tile -> {
+                CascadePeriodDTO cascadePeriodDTO = new CascadePeriodDTO();
+                cascadePeriodDTO.setId(tile.getIndexName());
+                cascadePeriodDTO.setText(tile.getShowText());
+                return cascadePeriodDTO;
+            })
+            .collect(Collectors.toList());
+    }
+}
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class Converter {
+    public List<CascadePeriodDTO> convert(List<TilePeriodDTO> tilePeriodDTOList) {
+        Map<String, CascadePeriodDTO> idTextMap = new HashMap<>();
+        List<CascadePeriodDTO> result = new ArrayList<>();
+
+        for (TilePeriodDTO tilePeriodDTO : tilePeriodDTOList) {
+            String id = tilePeriodDTO.getId();
+            String text = tilePeriodDTO.getText();
+
+            CascadePeriodDTO cascadePeriodDTO = idTextMap.get(id + text);
+
+            if (cascadePeriodDTO == null) {
+                cascadePeriodDTO = new CascadePeriodDTO();
+                cascadePeriodDTO.setId(id);
+                cascadePeriodDTO.setText(text);
+                idTextMap.put(id + text, cascadePeriodDTO);
+                result.add(cascadePeriodDTO);
+            }
+
+            CascadePeriodDTO child = new CascadePeriodDTO();
+            child.setId(tilePeriodDTO.getIndexName());
+            child.setText(tilePeriodDTO.getShowText());
+
+            if (cascadePeriodDTO.getChildren() == null) {
+                cascadePeriodDTO.setChildren(new ArrayList<>());
+            }
+
+            cascadePeriodDTO.getChildren().add(child);
+        }
+
+        return result;
+    }
+}
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+public class Converter {
+    public List<CascadePeriodDTO> convert(List<TilePeriodDTO> tilePeriodDTOList) {
+        Map<String, CascadePeriodDTO> idTextMap = tilePeriodDTOList.stream()
+            .collect(Collectors.toMap(
+                tile -> tile.getId() + tile.getText(),
+                tile -> {
+                    CascadePeriodDTO cascadePeriodDTO = new CascadePeriodDTO();
+                    cascadePeriodDTO.setId(tile.getId());
+                    cascadePeriodDTO.setText(tile.getText());
+                    cascadePeriodDTO.setChildren(new ArrayList<>()); // 初始化children
+                    return cascadePeriodDTO;
+                },
+                (existing, replacement) -> {
+                    existing.getChildren().add(replacement);
+                    return existing;
+                }
+            ));
+
+        return idTextMap.values().stream().collect(Collectors.toList());
+    }
+}
