@@ -1,0 +1,28 @@
+sudo apt-get install -y software-properties-common
+sudo add-apt-repository 'deb [arch=amd64] https://packages.vectorized.io/vectorized/redpanda/unstable/ bullseye main'
+sudo apt-get update
+sudo apt-get install redpanda
+rpk redpanda start --check=false
+<dependency>
+    <groupId>org.springframework.kafka</groupId>
+    <artifactId>spring-kafka</artifactId>
+    <version>YOUR_SPRING_KAFKA_VERSION</version>
+</dependency>
+implementation 'org.springframework.kafka:spring-kafka:YOUR_SPRING_KAFKA_VERSION'
+# Kafka / Redpanda 基本配置
+spring.kafka.bootstrap-servers=redpanda-server:9092
+spring.kafka.consumer.group-id=your-group-id
+spring.kafka.consumer.auto-offset-reset=earliest
+spring.kafka.consumer.key-deserializer=org.apache.kafka.common.serialization.StringDeserializer
+spring.kafka.consumer.value-deserializer=org.apache.kafka.common.serialization.StringDeserializer
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.stereotype.Component;
+
+@Component
+public class KafkaConsumer {
+
+    @KafkaListener(topics = "your-topic-name", groupId = "your-group-id")
+    public void listen(String message) {
+        System.out.println("Received message: " + message);
+    }
+}
