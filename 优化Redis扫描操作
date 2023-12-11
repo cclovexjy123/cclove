@@ -1,0 +1,79 @@
+String keyPattern = "*:" + node.getNodeFullName() + ":*";
+        List<JSONObject> values = redis.multiScanHash(CommonConstant.NODE_STATE_INDEX, keyPattern,500L, JSONObject.class, new String[0]);
+
+public <T> List<T> multiScanHash(String key, String keyPattern, long count, Class<T> clazz, String[] filterFeild) {
+        List<T> results = new ArrayList<>();
+        RedisCallback<Void> callback = (connection) -> {
+            ScanOptions scanOptions = ScanOptions.scanOptions().match(keyPattern).count(count).build();
+            try (Cursor<Map.Entry<byte[], byte[]>> cursor = connection.hScan(key.getBytes(), scanOptions)) {
+                while (cursor.hasNext()) {
+                    Map.Entry<byte[], byte[]> entry = cursor.next();
+                    byte[] valueBytes = entry.getValue();
+                    if (filterFeild != null) {
+                        String jsonString = new String(valueBytes, StandardCharsets.UTF_8);
+                        JSONObject jsonObject = JSON.parseObject(jsonString);
+                        for (String s : filterFeild) {
+                            jsonObject.remove(s);
+                        }
+                        T obj = JSON.toJavaObject(jsonObject, clazz);
+                        results.add(obj);
+                    } else {
+                        T obj = JSON.parseObject(valueBytes, clazz);
+                        results.add(obj);
+                    }
+                }
+            }
+            return null;
+        };
+        redisTemplate.execute(callback);
+        return results;
+    }
+public Set<String> findMatchingHashKeys(String hashKey, String keyPattern) {
+    Set<String> matchingKeys = new HashSet<>();
+    RedisCallback<Void> callback = (connection) -> {
+        ScanOptions scanOptions = ScanOptions.scanOptions().match(keyPattern).build();
+        try (Cursor<Map.Entry<byte[], byte[]>> cursor = connection.hScan(hashKey.getBytes(), scanOptions)) {
+            while (cursor.hasNext()) {
+                Map.Entry<byte[], byte[]> entry = cursor.next();
+                matchingKeys.add(new String(entry.getKey(), StandardCharsets.UTF_8));
+            }
+        }
+        return null;
+    };
+    redisTemplate.execute(callback);
+    return matchingKeys;
+}
+public <T> List<T> getValuesFromHash(String hashKey, Set<String> hashKeys, Class<T> clazz) {
+    List<T> values = new ArrayList<>();
+    for (String key : hashKeys) {
+        String value = redisTemplate.opsForHash().get(hashKey, key);
+        T obj = JSON.parseObject(value, clazz);
+        values.add(obj);
+    }
+    return values;
+}
+public <T> List<T> getValuesFromHash(String hashKey, Set<String> hashKeys, Class<T> clazz) {
+    List<Object> hashValues = redisTemplate.opsForHash().multiGet(hashKey, new ArrayList<>(hashKeys));
+    return hashValues.stream()
+                     .filter(Objects::nonNull)
+                     .map(value -> JSON.parseObject((String) value, clazz))
+                     .collect(Collectors.toList());
+}
+public Set<String> findMatchingHashKeys(String hashKey, String keyPattern, int maxCount) {
+    Set<String> matchingKeys = new HashSet<>();
+    RedisCallback<Void> callback = (connection) -> {
+        ScanOptions scanOptions = ScanOptions.scanOptions().match(keyPattern).build();
+        try (Cursor<Map.Entry<byte[], byte[]>> cursor = connection.hScan(hashKey.getBytes(), scanOptions)) {
+            while (cursor.hasNext() && matchingKeys.size() < maxCount) {
+                Map.Entry<byte[], byte[]> entry = cursor.next();
+                matchingKeys.add(new String(entry.getKey(), StandardCharsets.UTF_8));
+                if (matchingKeys.size() >= maxCount) {
+                    break;
+                }
+            }
+        }
+        return null;
+    };
+    redisTemplate.execute(callback);
+    return matchingKeys;
+}
