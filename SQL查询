@@ -1,0 +1,20 @@
+SELECT 
+    c.security_id, 
+    c.security_type AS csv_type, 
+    r.security_type,
+    (SELECT t.label FROM t_qd_security_type t WHERE t.value = c.security_type) AS csv_label,
+    (SELECT a.label FROM t_qd_security_type a WHERE a.value = r.security_type) AS security_label
+FROM 
+    t_qd_csv c
+    JOIN t_qd_security_record r ON c.security_id = r.security_id AND c.exchange_id = r.exchange_id
+WHERE 
+    r.date = '20240423' 
+    AND r.exchange_id = 'SZ' 
+    AND (c.security_type <> r.security_type OR r.security_type IS NULL)
+ORDER BY 
+    csv_type;
+SELECT * FROM t_qd_security_type WHERE BINARY value = 'A';
+ALTER TABLE t_qd_security_type MODIFY value VARCHAR(255) COLLATE utf8_bin;
+SELECT * FROM t_qd_security_type WHERE value COLLATE utf8_bin = 'A';
+LambdaQueryChainWrapper<QdSecurityType> lambda = qdSecurityTypeService.lambdaQuery()
+    .apply("BINARY product_status_mark = {0}", "Y");
