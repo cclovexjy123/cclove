@@ -1,0 +1,156 @@
+public class TradeDTO {
+    private String name;
+    private BigDecimal price;
+
+    // Getter和Setter
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    // 可以根据需要添加toString, equals, hashCode等方法
+}
+@DS("singular_trade_data")
+public interface TradeMapper extends BaseMapper<TradeDTO> {
+
+    @Select("SELECT name, price FROM trade WHERE some_condition")
+    List<TradeDTO> selectRelevantData();
+}
+import java.util.List;
+import java.util.Optional;
+
+public class Main {
+    public static void main(String[] args) {
+        // 示例：假设你有一个IndexItem的List
+        List<IndexItem> indexList = List.of(
+            new IndexItem("index1"),
+            new IndexItem("QiDian_StockFund_TurnOver"),
+            new IndexItem("index3")
+        );
+
+        // 使用stream来找到indexName为"QiDian_StockFund_TurnOver"的元素
+        Optional<IndexItem> result = indexList.stream()
+            .filter(item -> "QiDian_StockFund_TurnOver".equals(item.getIndexName()))
+            .findFirst();
+
+        // 打印结果
+        result.ifPresent(item -> System.out.println("Found: " + item.getIndexName()));
+        // 如果result是空的，也可以适当处理，例如打印没有找到
+        if (!result.isPresent()) {
+            System.out.println("Item not found.");
+        }
+    }
+
+    public static class IndexItem {
+        private String indexName;
+
+        public IndexItem(String indexName) {
+            this.indexName = indexName;
+        }
+
+        public String getIndexName() {
+            return indexName;
+        }
+
+        public void setIndexName(String indexName) {
+            this.indexName = indexName;
+        }
+    }
+}
+public class DailyPeriod {
+    private String indexName;
+    // 可能还有其他属性
+
+    public DailyPeriod(String indexName) {
+        this.indexName = indexName;
+    }
+
+    public String getIndexName() {
+        return indexName;
+    }
+
+    public void setIndexName(String indexName) {
+        this.indexName = indexName;
+    }
+}
+import java.util.List;
+import java.util.NoSuchElementException;
+
+public class Main {
+    public static void main(String[] args) {
+        List<DailyPeriod> dailyPeriods = List.of(
+            new DailyPeriod("index1"),
+            new DailyPeriod("QiDian_StockFund_TurnOver"),
+            new DailyPeriod("index3")
+        );
+
+        DailyPeriod result = dailyPeriods.stream()
+            .filter(p -> "QiDian_StockFund_TurnOver".equals(p.getIndexName()))
+            .findFirst()
+            .orElseThrow(() -> new NoSuchElementException("No DailyPeriod found with indexName QiDian_StockFund_TurnOver"));
+
+        System.out.println("Found: " + result.getIndexName());
+    }
+}
+public class DailyPeriod {
+    private String indexName;
+    // 可能还有其他属性
+
+    public DailyPeriod(String indexName) {
+        this.indexName = indexName;
+    }
+
+    public String getIndexName() {
+        return indexName;
+    }
+
+    public void setIndexName(String indexName) {
+        this.indexName = indexName;
+    }
+}
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+public class Main {
+    public static void main(String[] args) {
+        List<DailyPeriod> dailyPeriods = List.of(
+            new DailyPeriod("index1"),
+            new DailyPeriod("QiDian_StockFund_TurnOver"),
+            new DailyPeriod("QiDian_Credit_StockFund_TurnOver"),
+            new DailyPeriod("index3")
+        );
+
+        Map<String, DailyPeriod> result = dailyPeriods.stream()
+            .filter(p -> "QiDian_StockFund_TurnOver".equals(p.getIndexName()) || "QiDian_Credit_StockFund_TurnOver".equals(p.getIndexName()))
+            .collect(Collectors.toMap(DailyPeriod::getIndexName, p -> p));
+
+        // 打印Map内容来验证结果
+        result.forEach((key, value) -> System.out.println(key + ": " + value.getIndexName()));
+    }
+}
+Map<String, DailyPeriodIndex> result = dailyList.stream()
+    .filter(p -> "QiDian_StockFund_TurnOver".equals(p.getIndexName())
+            || "QCRTDT_Credit_Stock_TurnOver".equals(p.getIndexName())
+            || "QCRTDT_Credit_Fund_TurnOver".equals(p.getIndexName()))
+    .collect(Collectors.toMap(DailyPeriodIndex::getIndexName, Function.identity()));
+.collect(Collectors.toMap(DailyPeriodIndex::getIndexName, Function.identity(), (existing, replacement) -> existing));
+Map<String, DailyPeriodIndex> result = dailyList.stream()
+    .filter(p -> "QiDian_StockFund_TurnOver".equals(p.getIndexName())
+            || "QCRTDT_Credit_Stock_TurnOver".equals(p.getIndexName())
+            || "QCRTDT_Credit_Fund_TurnOver".equals(p.getIndexName()))
+    .collect(Collectors.toMap(
+        p -> p.getSrvId() + p.getIndexName(),  // 自定义键
+        Function.identity(),
+        (existing, replacement) -> existing));  // 处理键冲突，保留第一个
